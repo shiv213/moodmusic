@@ -12,6 +12,10 @@ import datetime
 import librosa
 from transformers import Wav2Vec2ForSequenceClassification, Wav2Vec2FeatureExtractor
 
+import os
+from dotenv import load_dotenv
+load_dotenv()
+
 #@title analyze emotion
 def load_audio(file_name):
     speech, _ = librosa.load(file_name, sr=16000, mono=True)
@@ -36,8 +40,8 @@ print(labels)
 #@title create playlist
 def create_playlist(mood):
     # Authenticate with Spotify
-    sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id="b6de56e5e2a94e048e312579af966cb8",
-                                                   client_secret="c1d54a60e8cf44b1b7087a4b9cfb37dd",
+    sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id=os.getenv("SPOTIFY_CLIENT_ID"),
+                                                   client_secret=os.getenv("SPOTIFY_CLIENT_SECRET"),
                                                    redirect_uri="http://localhost:8080",
                                                    scope="playlist-modify-public"))
 
