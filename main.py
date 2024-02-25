@@ -44,31 +44,29 @@ def create_playlist(mood):
 
     print(f"Playlist created: {new_playlist['external_urls']['spotify']}")
 
+def process_file(file_name):
+    speech = load_audio(file_name)
 
-# Load an audio file
-file_name = "sad.m4a" #@param {type: "string"}
-speech = load_audio(file_name)
+    model = Wav2Vec2ForSequenceClassification.from_pretrained("superb/wav2vec2-base-superb-er")
+    feature_extractor = Wav2Vec2FeatureExtractor.from_pretrained("superb/wav2vec2-base-superb-er")
 
-model = Wav2Vec2ForSequenceClassification.from_pretrained("superb/wav2vec2-base-superb-er")
-feature_extractor = Wav2Vec2FeatureExtractor.from_pretrained("superb/wav2vec2-base-superb-er")
+    # Compute attention masks and normalize the waveform if needed
+    inputs = feature_extractor(speech, sampling_rate=16000, padding=True, return_tensors="pt")
 
-# Compute attention masks and normalize the waveform if needed
-inputs = feature_extractor(speech, sampling_rate=16000, padding=True, return_tensors="pt")
+    logits = model(**inputs).logits
+    predicted_ids = torch.argmax(logits, dim=-1)
+    labels = [model.config.id2label[_id] for _id in predicted_ids.tolist()]
 
-logits = model(**inputs).logits
-predicted_ids = torch.argmax(logits, dim=-1)
-labels = [model.config.id2label[_id] for _id in predicted_ids.tolist()]
+    print(labels[0])
+    abrv = labels[0]
+    mood = ""
+    if abrv == "ang":
+        mood = "anger"
+    elif abrv == "hap":
+        mood = "happy"
+    elif abrv == "sad": 
+        mood = "sad"
+    else:
+        mood = "neutral"
 
-print(labels[0])
-abrv = labels[0]
-mood = ""
-if abrv == "ang":
-    mood = "anger"
-elif abrv == "hap":
-    mood = "happy"
-elif abrv == "sad": 
-    mood = "sad"
-else:
-    mood = "neutral"
-
-create_playlist(mood)
+    create_playlist(mood)

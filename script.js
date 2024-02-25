@@ -1,3 +1,21 @@
+function sendAudioToServer(audioBlob) {
+    const formData = new FormData();
+    formData.append('audio', audioBlob);
+
+    fetch('http://127.0.0.1:5000/upload', {
+        method: 'POST',
+        body: formData,
+    })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Success:', data);
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+        });
+}
+
+
 document.addEventListener('DOMContentLoaded', function () {
     const startRecord = document.getElementById('startRecord');
     const stopRecord = document.getElementById('stopRecord');
@@ -18,6 +36,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     const audioUrl = URL.createObjectURL(audioBlob);
                     audioPlayer.src = audioUrl;
                     audioPlayer.hidden = false;
+                    sendAudioToServer(audioBlob);
                 };
                 audioChunks = [];
                 mediaRecorder.start();
@@ -39,6 +58,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const audioUrl = URL.createObjectURL(files[0]);
             audioPlayer.src = audioUrl;
             audioPlayer.hidden = false;
+            sendAudioToServer(files[0]);
         }
     };
 });
