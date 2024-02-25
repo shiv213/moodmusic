@@ -8,6 +8,7 @@ moodmusic
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 import torch
+import datetime
 import librosa
 from transformers import Wav2Vec2ForSequenceClassification, Wav2Vec2FeatureExtractor
 
@@ -35,9 +36,9 @@ print(labels)
 #@title create playlist
 def create_playlist(mood):
     # Authenticate with Spotify
-    sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id="",
-                                                   client_secret="",
-                                                   redirect_uri="localhost:8080",
+    sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id="b6de56e5e2a94e048e312579af966cb8",
+                                                   client_secret="c1d54a60e8cf44b1b7087a4b9cfb37dd",
+                                                   redirect_uri="http://localhost:8080",
                                                    scope="playlist-modify-public"))
 
     # Search for playlists that match the mood
@@ -49,8 +50,9 @@ def create_playlist(mood):
     track_uris = [track['track']['uri'] for track in tracks['items']]
 
     # Create a new playlist with the tracks
+    date = datetime.datetime.now().strftime("%d-%m-%Y")
     user_id = sp.me()['id']
-    new_playlist = sp.user_playlist_create(user_id, f"{mood} Mood Playlist", public=True)
+    new_playlist = sp.user_playlist_create(user_id, f"{mood} {str(date)}", public=True)
     sp.playlist_add_items(new_playlist['id'], track_uris)
 
     print(f"Playlist created: {new_playlist['external_urls']['spotify']}")
